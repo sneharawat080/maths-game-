@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Logic Leap Game</title>
+    <style>
+        body {
+            background: url('https://i.pinimg.com/originals/47/cd/03/47cd031e07098e31e857a8aa439e63c2.jpg') no-repeat fixed;
+            background-size: cover;
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        #game-container {
+            width: 1200px;
+            height: 550px;
+            background: url('https://cdn2.vectorstock.com/i/1000x1000/29/41/pixel-game-background-vector-12492941.jpg') no-repeat;
+            background-size: cover;
+            border: 2px solid #000;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #player {
+            width: 90px;
+            height: 120px;
+            background: url('https://purepng.com/public/uploads/large/purepng.com-mario-runningmariofictional-charactervideo-gamefranchisenintendodesigner-1701528632608aaskj.png') no-repeat;
+            background-size: contain;
+            background-position: center;
+            position: absolute;
+            bottom: 0;
+            left: 40px;
+            animation: shake 0.5s infinite alternate;
+        }
+
+        .obstacle {
+            width: 120px;
+            height: 120px;
+            position: absolute;
+            bottom: 10px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            display: flex;
+            align-items: center;
+           
+        }
+
+        .proposition {
+            background-color: #3498db;
+            color: white;
+            border-radius: 12px;
+            padding: 10px;
+        }
+
+        .button-container {
+            display: flex;
+            margin: 20px;
+        }
+
+        .button {
+            padding: 16px 32px;
+            font-size: 20px;
+            border: none;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            transition-duration: 0.5s;
+            cursor: pointer;
+            border-radius: 12px;
+            margin: 10px;
+        }
+
+        #true-button {
+            background-color: #4CAF50; /* Green color for "True" button */
+        }
+
+        #false-button {
+            background-color: #FF5733; /* Red color for "False" button */
+        }
+
+        #score-container, #lives-container {
+    display: flex;
+    align-items: center;
+    font-size: 24px;
+    margin: 10px;
+    border: 2px solid #3498db; /* Add border style */
+    border-radius: 10px; /* Rounded corners */
+    padding: 10px;
+    color:black;
+    text-decoration: black;
+    background-color: #3498db;
+}
+
+#score-label, #lives-label {
+    margin-right: 10px;
+}
+
+ #lives {
+    font-weight: bold;
+    background-color: #3498db;
+    color: red;
+    padding: 10px 15px;
+    border-radius: 10px;
+    text-decoration-color: black;
+    border-color: black;
+}
+#scroe{
+    font-weight: bold;
+    background-color: #3498db;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 10px;
+    text-decoration-color: black;
+    text-emphasis-color:black;
+  border-color: black;
+
+}
+
+
+        /* Add styles for the game over popup */
+        #game-over-popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #game-over-popup-content {
+            background-color: #3498db;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        #game-over-popup h2 {
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+
+        #game-over-popup p {
+            font-size: 24px;
+        }
+
+        #play-again-button {
+            padding: 16px 32px;
+            font-size: 24px;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 12px;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+
+        @keyframes shake {
+            0% {
+                transform: translateY(0);
+            }
+            100% {
+                transform: translateY(-10px);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    
+        
+
+    <div id="game-container">
+        <div id="player" style="bottom: 0;"></div>
+    </div>
+    <div class="button-container">
+        <div id="true-button" class="button">True</div>
+        <div id="false-button" class="button">False</div>
+    </div>
+    <div id="score-container">
+        <span id="score-label">Score:</span>
+        <span id="score">0</span>
+    </div>
+    <div id="lives-container">
+        <span id="lives-label">Lives:</span>
+        <span id="lives">❤️❤️❤️</span>
+    </div>
+
+    <!-- Game Over Popup -->
+    <div id="game-over-popup">
+        <div id="game-over-popup-content">
+            <h2>Game Over</h2>
+            <p>Your final score: <span id="final-score">0</span></p>
+            <button id="play-again-button">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        const player = document.getElementById('player');
+        let isJumping = false;
+        let score = 0;
+        let lives = 3;
+        let isGameOver = false;
+
+        // Get references to the popup and its content
+        const gameOverPopup = document.getElementById('game-over-popup');
+        const finalScore = document.getElementById('final-score');
+        const playAgainButton = document.getElementById('play-again-button');
+
+        playAgainButton.addEventListener('click', () => {
+            gameOverPopup.style.display = 'none';
+            resetGame();
+        });
+
+        document.getElementById('true-button').addEventListener('click', function () {
+            checkAnswer(true);
+        });
+
+        document.getElementById('false-button').addEventListener('click', function () {
+            checkAnswer(false);
+        });
+
+        function jumpPlayer() {
+            if (!isGameOver) {
+                player.style.transition = 'bottom 0.5s';
+                player.style.bottom = '250px'; // Lift the player up
+                setTimeout(function () {
+                    player.style.transition = 'bottom 0.5s';
+                    player.style.bottom = '0';
+                    setTimeout(function () {
+                        player.style.bottom = '0'; // Slightly lower than the original position
+                        returnPlayer();
+                    }, 100);
+                }, 500);
+            }
+        }
+
+        function returnPlayer() {
+            const returnDuration = '0.5s';
+            setTimeout(() => {
+                player.style.transition = 'bottom 0.5s';
+                player.style.bottom = '0';
+                setTimeout(() => {
+                    player.style.transition = 'bottom 0';
+                    player.style.bottom = '0'; 
+                }, 100);
+            }, returnDuration * 1000);
+        }
+
+        function updateScore() {
+            score += 1;
+            document.getElementById('score').textContent = score;
+        }
+
+        function updateLives() {
+            if (lives > 0) {
+                lives -= 1;
+                document.getElementById('lives').textContent = '❤'.repeat(lives);
+            }
+
+            if (lives === 0 && !isGameOver) {
+                showGameOverPopup();
+            }
+        }
+
+        // Reset the game when "Play Again" is clicked
+        function resetGame() {
+            score = 0;
+            lives = 3;
+            isGameOver = false;
+            document.getElementById('score').textContent = score;
+            document.getElementById('lives').textContent = '❤❤❤';
+            createRandomPropositionObstacle();
+        }
+
+        function showGameOverPopup() {
+            // Show the game over popup with the final score
+            finalScore.textContent = score;
+            gameOverPopup.style.display = 'flex';
+            isGameOver = true;
+        }
+
+        function checkAnswer(isTrue) {
+            const currentProposition = document.querySelector('.proposition');
+            if (!currentProposition) {
+                return; // No active proposition to answer.
+            }
+            const propositionText = currentProposition.textContent;
+            const isCorrectAnswer = isTrue === isPropositionTrue(propositionText);
+
+            if (isCorrectAnswer) {
+                // Logic for correct answer
+                jumpPlayer();
+                updateScore();
+            } else {
+                // Logic for wrong answer
+                updateLives();
+            }
+
+            // Remove the active proposition
+            currentProposition.parentElement.remove();
+        }
+
+        function isPropositionTrue(proposition) {
+            // You can add more conditions here to match other propositions.
+            switch (proposition) {
+                case "T v F =":
+                case "T ⊕ F ↔ T =":
+                case "F ⊕ F → F =":
+                case "F ↔ F =":
+                case "T ∧ T =":
+                case "F → T ↔ T =":
+                case "F v T v F =":
+                case "T ∧ T v F =":
+                case "F → T ↔ T =":
+                case "F ↔ T ⊕ T =":
+                case "F ⊕ T ↔ T =":
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        // Generate random propositions as obstacles
+        function createRandomPropositionObstacle() {
+            const propositions = [
+                "T v F =",
+                "T ∧ T =",
+                "F ∧ F =",
+                "T ⊕ F ↔ T =",
+                "F ⊕ F → F =",
+                "T v T ∧ F =",
+                "F ↔ F =",
+                "F ⊕ F → F =",
+                "T v T ∧ F =",
+                "F ↔ F ⊕ F =",
+                "T → T ⊕ T =",
+                "T ⊕ F ⊕ T =",
+                "F → T ↔ F =",
+                "T → F =",
+                "T ⊕ F ↔ T =",
+                "F → T ↔ T =",
+                "F v T v F =",
+                "T ∧ T v F =",
+                "F → T ↔ T =",
+                "F ↔ T ⊕ T =",
+                "F ⊕ T ↔ T ="
+            ];
+
+            const randomProposition = propositions[Math.floor(Math.random() * propositions.length)];
+            const obstacle = document.createElement('div');
+            obstacle.classList.add('obstacle');
+            obstacle.innerHTML = `<div class="proposition">${randomProposition}</div>`;
+            document.getElementById('game-container').appendChild(obstacle);
+
+            moveObstacle(obstacle);
+        }
+
+        function moveObstacle(obstacle) {
+            let left = 1000;
+            const obstacleSpeed = 4;
+            const moveInterval = setInterval(function () {
+                if (left < -150) {
+                    obstacle.remove();
+                    clearInterval(moveInterval);
+                    createRandomPropositionObstacle();
+                } else {
+                    left -= obstacleSpeed;
+                    obstacle.style.left = left + 'px';
+                    if (left < 40 && left > -70) {
+                        // Show answer buttons when the obstacle is in front of the player
+                        document.querySelector('.button-container').style.display = 'flex';
+                    }
+                    // Check for collisions on every move
+                    checkCollision(obstacle);
+                }
+            }, 20);
+        }
+
+        // Detect collisions between the player and obstacles
+        function checkCollision(obstacle) {
+            const playerRect = player.getBoundingClientRect();
+            const obstacleRect = obstacle.getBoundingClientRect();
+
+            if (
+                obstacleRect.left < playerRect.right &&
+                obstacleRect.right > playerRect.left &&
+                obstacleRect.bottom > playerRect.top &&
+                obstacleRect.top < playerRect.bottom
+            ) {
+                // Collision detected, decrease life and remove obstacle
+                updateLives();
+                obstacle.remove();
+            }
+        }
+
+        createRandomPropositionObstacle();
+    </script>
+</body>
+</html>

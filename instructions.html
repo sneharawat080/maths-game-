@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Math Proposition Game - Instructions</title>
+    <style>
+        body {
+            background: url('background-image.jpg') no-repeat fixed;
+            background-size: cover;
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        #instructions-container {
+            width: 80%;
+            max-width: 600px;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        #start-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 20px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="instructions-container">
+        <h1>LOGIC LEAP GAME - Instructions</h1>
+        <p>Welcome to the Game. Your goal is to answer math propositions and avoid obstacles.</p>
+        <p>Use the "True" and "False" buttons to answer propositions. If you answer correctly, the player character will jump.</p>
+        <p>You have three lives represented by ❤️. Each time you collide with an obstacle or answer a proposition incorrectly, you'll lose a life.</p>
+        <p>Your score will increase with each correct answer. Try to achieve the highest score possible!</p>
+        <a href="game.html"><button id="start-button">Start Game</button></a>
+    </div>
+</body>
+</html>
+
